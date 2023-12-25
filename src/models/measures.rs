@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use interface::MeasureCreate;
 use loco_rs::{
     model::{ModelError, ModelResult},
@@ -19,6 +18,8 @@ pub use super::_entities::measures::{self, ActiveModel, Entity, Model};
 pub struct ModelValidator {
     #[validate(length(min = 2, message = "Name must be at least 2 characters long."))]
     pub name: String,
+    #[validate(length(min = 2, message = "Plural Name must be at least 2 characters long."))]
+    pub name_plural: String,
     #[validate(range(min = 0))]
     pub grams: f64,
 }
@@ -27,6 +28,7 @@ impl From<&ActiveModel> for ModelValidator {
     fn from(value: &ActiveModel) -> Self {
         Self {
             name: value.name.as_ref().to_string(),
+            name_plural: value.name_plural.as_ref().to_string(),
             grams: *value.grams.as_ref(),
         }
     }
@@ -36,7 +38,7 @@ impl From<&ActiveModel> for ModelValidator {
 impl ActiveModelBehavior for super::_entities::measures::ActiveModel {
     // extend activemodel below (keep comment for generators)
 
-    async fn before_save<C>(self, db: &C, insert: bool) -> Result<Self, DbErr>
+    async fn before_save<C>(self, _db: &C, _insert: bool) -> Result<Self, DbErr>
     where
         C: ConnectionTrait,
     {

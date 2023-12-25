@@ -2,16 +2,11 @@
 #![allow(clippy::unnecessary_struct_initialization)]
 #![allow(clippy::unused_async)]
 
-use std::ops::Rem;
-
 use axum_macros::debug_handler;
-use chrono::Utc;
-use eyre::{eyre, OptionExt};
-use fuzzy_fraction::FuzzyFraction;
+
 use interface::{InputWeightType, MeasureCreate, RandomWeightRequest, RandomWeightResponse};
-use loco_rs::{controller::middleware, prelude::*};
+use loco_rs::prelude::*;
 use sea_orm::{prelude::DateTimeUtc, TryIntoModel};
-use serde::{Deserialize, Serialize};
 
 use crate::models::{
     _entities::measures::{ActiveModel, Entity, Model},
@@ -19,13 +14,13 @@ use crate::models::{
 };
 
 async fn load_item(auth: auth::JWT, ctx: &AppContext, id: i32) -> Result<Model> {
-    let user = users::Model::find_by_pid(&ctx.db, &auth.claims.pid).await?;
+    let _user = users::Model::find_by_pid(&ctx.db, &auth.claims.pid).await?;
     let item = Entity::find_by_id(id).one(&ctx.db).await?;
     item.ok_or_else(|| Error::NotFound)
 }
 
 pub async fn list(auth: auth::JWT, State(ctx): State<AppContext>) -> Result<Json<Vec<Model>>> {
-    let user = users::Model::find_by_pid(&ctx.db, &auth.claims.pid).await?;
+    let _user = users::Model::find_by_pid(&ctx.db, &auth.claims.pid).await?;
     format::json(Entity::find().all(&ctx.db).await?)
 }
 
@@ -34,7 +29,7 @@ pub async fn add(
     State(ctx): State<AppContext>,
     Json(params): Json<MeasureCreate>,
 ) -> Result<Json<Model>> {
-    let user = users::Model::find_by_pid(&ctx.db, &auth.claims.pid).await?;
+    let _user = users::Model::find_by_pid(&ctx.db, &auth.claims.pid).await?;
     format::json(
         ActiveModel::create(&ctx.db, params)
             .await?
