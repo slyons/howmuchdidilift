@@ -1,0 +1,9 @@
+---
+source: tests/requests/measure.rs
+expression: random_weight
+---
+RandomWeightResponse {
+    input_amt: 100.0,
+    input_type: Lbs,
+    output_weight: "90.72 gramburgers",
+}

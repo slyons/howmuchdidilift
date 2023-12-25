@@ -139,7 +139,7 @@ async fn can_login_without_verify() {
     .await;
 }
 
-#[tokio::test]
+/*#[tokio::test]
 #[serial]
 async fn can_reset_password() {
     configure_insta!();
@@ -190,3 +190,4 @@ async fn can_reset_password() {
     })
     .await;
 }
+*/

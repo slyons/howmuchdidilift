@@ -5,25 +5,11 @@ use crate::{
     mailers::auth::AuthMailer,
     models::{
         _entities::users,
-        users::{LoginParams, RegisterParams},
-    },
-    views::auth::LoginResponse,
+    }
 };
-#[derive(Debug, Deserialize, Serialize)]
-pub struct VerifyParams {
-    pub token: String,
-}
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ForgotParams {
-    pub email: String,
-}
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ResetParams {
-    pub token: String,
-    pub password: String,
-}
+use interface::{VerifyParams, LoginResponse, ForgotParams, ResetParams, LoginParams, RegisterParams};
 
 /// Register function creates a new user with the given parameters and sends a
 /// welcome email to the user
@@ -47,10 +33,12 @@ async fn register(
 
     let user = user
         .into_active_model()
-        .set_email_verification_sent(&ctx.db)
-        .await?;
+        .set_email_verification_sent(&ctx.db).await?
+        .into_active_model()
+        .verified(&ctx.db)
+        //
 
-    AuthMailer::send_welcome(&ctx, &user).await?;
+        .await?;
 
     format::json(())
 }
@@ -133,15 +121,21 @@ async fn login(
         .generate_jwt(&jwt_secret.secret, &jwt_secret.expiration)
         .or_else(|_| unauthorized("unauthorized!"))?;
 
-    format::json(LoginResponse::new(&user, &token))
+    let resp = LoginResponse {
+        token: token.to_string(),
+        pid: user.pid.to_string(),
+        name: user.name.clone(),
+        is_verified: user.email_verified_at.is_some(),
+    };
+    format::json(resp)
 }
 
 pub fn routes() -> Routes {
     Routes::new()
         .prefix("auth")
         .add("/register", post(register))
-        .add("/verify", post(verify))
+        //.add("/verify", post(verify))
         .add("/login", post(login))
-        .add("/forgot", post(forgot))
-        .add("/reset", post(reset))
+        //.add("/forgot", post(forgot))
+        //.add("/reset", post(reset))
 }

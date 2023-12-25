@@ -20,6 +20,8 @@ Ok(
         email_verification_sent_at: Some(
             DATE,
         ),
-        email_verified_at: None,
+        email_verified_at: Some(
+            DATE,
+        ),
     },
 )

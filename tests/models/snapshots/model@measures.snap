@@ -1,0 +1,12 @@
+---
+source: tests/models/measures.rs
+expression: item
+---
+Model {
+    created_at: DATE,
+    updated_at: DATE,
+    id: 1,
+    name: "burger",
+    name_plural: "burgers",
+    grams: 500.0,
+}

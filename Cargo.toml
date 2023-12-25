@@ -1,5 +1,5 @@
 [workspace]
-members = ["frontend"]
+members = ["frontend", "interface"]
 
 [package]
 name = "liftcalc"
@@ -32,6 +32,11 @@ axum = "0.7.1"
 include_dir = "0.7"
 uuid = { version = "1.6.0", features = ["v4"] }
 tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
+interface = { version = "0.1.0", path = "interface" }
+rand = "0.8.5"
+fraction = "0.14.0"
+axum-macros = "0.4.0"
+fuzzy_fraction = "0.1.2"
 
 [[bin]]
 name = "liftcalc-cli"
