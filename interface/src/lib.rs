@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use strum::EnumIter;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -48,26 +48,26 @@ pub struct ResetParams {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MeasureCreate {
     pub name: String,
-    pub name_plural:  String,
-    pub grams: f64
+    pub name_plural: String,
+    pub grams: f64,
 }
 
 #[derive(Debug, Deserialize, Serialize, EnumIter)]
-#[serde(rename_all="lowercase")]
+#[serde(rename_all = "lowercase")]
 pub enum InputWeightType {
     Lbs,
-    Kgs
+    Kgs,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RandomWeightRequest {
     pub input_amt: f64,
-    pub input_type: InputWeightType
+    pub input_type: InputWeightType,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RandomWeightResponse {
     pub input_amt: f64,
     pub input_type: InputWeightType,
-    pub output_weight: String
+    pub output_weight: String,
 }

@@ -1,11 +1,8 @@
 use insta::{assert_debug_snapshot, with_settings};
-use liftcalc::app::App;
+use interface::MeasureCreate;
+use liftcalc::{app::App, models::measures};
 use loco_rs::testing;
 use serial_test::serial;
-use interface::MeasureCreate;
-use liftcalc::{
-    models::measures
-};
 
 macro_rules! configure_insta {
     ($($expr:expr),*) => {
@@ -23,7 +20,7 @@ async fn test_model() {
 
     let boot = testing::boot_test::<App>().await.unwrap();
     //testing::seed::<App>(&boot.app_context.db).await.unwrap();
-    let create_params = MeasureCreate{
+    let create_params = MeasureCreate {
         name: "burger".to_string(),
         name_plural: "burgers".to_string(),
         grams: 500.0,
@@ -33,8 +30,7 @@ async fn test_model() {
     assert!(create_req.is_ok());
     let create_req = create_req.unwrap();
 
-    let item = measures::Model::find_by_name(&boot.app_context.db, "Burger")
-        .await;
+    let item = measures::Model::find_by_name(&boot.app_context.db, "Burger").await;
     assert!(item.is_ok());
     let item = item.unwrap();
     assert_eq!(create_req.id.unwrap(), item.id);
@@ -59,5 +55,3 @@ async fn test_model() {
     // snapshot the result:
     // assert_debug_snapshot!(item);
 }
-
-

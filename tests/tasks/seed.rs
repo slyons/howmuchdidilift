@@ -15,8 +15,8 @@
 //! ```
 use std::collections::BTreeMap;
 
-use loco_rs::{db, prelude::*};
 use liftcalc::app::App;
+use loco_rs::{db, prelude::*};
 use migration::Migrator;
 
 #[allow(clippy::module_name_repetitions)]

@@ -1,15 +1,10 @@
+use interface::{
+    ForgotParams, LoginParams, LoginResponse, RegisterParams, ResetParams, VerifyParams,
+};
 use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    mailers::auth::AuthMailer,
-    models::{
-        _entities::users,
-    }
-};
-
-
-use interface::{VerifyParams, LoginResponse, ForgotParams, ResetParams, LoginParams, RegisterParams};
+use crate::{mailers::auth::AuthMailer, models::_entities::users};
 
 /// Register function creates a new user with the given parameters and sends a
 /// welcome email to the user
@@ -33,11 +28,11 @@ async fn register(
 
     let user = user
         .into_active_model()
-        .set_email_verification_sent(&ctx.db).await?
+        .set_email_verification_sent(&ctx.db)
+        .await?
         .into_active_model()
         .verified(&ctx.db)
         //
-
         .await?;
 
     format::json(())
@@ -136,6 +131,6 @@ pub fn routes() -> Routes {
         .add("/register", post(register))
         //.add("/verify", post(verify))
         .add("/login", post(login))
-        //.add("/forgot", post(forgot))
-        //.add("/reset", post(reset))
+    //.add("/forgot", post(forgot))
+    //.add("/reset", post(reset))
 }

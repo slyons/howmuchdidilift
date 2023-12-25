@@ -1,7 +1,7 @@
 use eyre::Context;
+use liftcalc::app::App;
 #[allow(unused_imports)]
 use loco_rs::{cli::playground, prelude::*};
-use liftcalc::app::App;
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {

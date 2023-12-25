@@ -1,7 +1,7 @@
 use axum::http::{HeaderName, HeaderValue};
-use loco_rs::{app::AppContext, TestServer};
-use liftcalc::models::users;
 use interface::LoginResponse;
+use liftcalc::models::users;
+use loco_rs::{app::AppContext, TestServer};
 
 const USER_EMAIL: &str = "test@loco.com";
 const USER_PASSWORD: &str = "1234";

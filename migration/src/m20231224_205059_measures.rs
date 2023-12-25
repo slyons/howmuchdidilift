@@ -15,10 +15,7 @@ impl MigrationTrait for Migration {
                     .col(pk_auto(Measures::Id).borrow_mut())
                     .col(string_uniq(Measures::Name).not_null().borrow_mut())
                     .col(string_uniq(Measures::NamePlural).not_null().borrow_mut())
-                    .col(ColumnDef::new(Measures::Grams)
-                        .double()
-                        .not_null()
-                    )
+                    .col(ColumnDef::new(Measures::Grams).double().not_null())
                     .to_owned(),
             )
             .await
@@ -37,7 +34,5 @@ enum Measures {
     Id,
     Name,
     NamePlural,
-    Grams
+    Grams,
 }
-
-

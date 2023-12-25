@@ -1,10 +1,10 @@
 use insta::assert_debug_snapshot;
-use loco_rs::{model::ModelError, testing};
+use interface::RegisterParams;
 use liftcalc::{
     app::App,
     models::users::{self, Model},
 };
-use interface::RegisterParams;
+use loco_rs::{model::ModelError, testing};
 use sea_orm::{ActiveModelTrait, ActiveValue, IntoActiveModel};
 use serial_test::serial;
 

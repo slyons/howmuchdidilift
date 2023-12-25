@@ -1,4 +1,5 @@
 use chrono::offset::Local;
+use interface::*;
 use loco_rs::{
     auth, hash,
     model::{ModelError, ModelResult},
@@ -10,8 +11,6 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 pub use super::_entities::users::{self, ActiveModel, Entity, Model};
-
-use interface::*;
 
 #[derive(Debug, Validate, Deserialize)]
 pub struct ModelValidator {

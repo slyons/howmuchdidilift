@@ -1,10 +1,10 @@
 use axum::Json;
 use insta::{assert_debug_snapshot, with_settings};
+use interface::{InputWeightType, MeasureCreate, RandomWeightRequest, RandomWeightResponse};
 use liftcalc::app::App;
 use loco_rs::testing;
 use serial_test::serial;
 
-use interface::{MeasureCreate, RandomWeightRequest, RandomWeightResponse, InputWeightType};
 use crate::requests::prepare_data;
 
 macro_rules! configure_insta {
@@ -26,7 +26,7 @@ async fn can_create() {
         let user = prepare_data::init_user_login(&request, &ctx).await;
         let (auth_key, auth_value) = prepare_data::auth_header(&user.token);
 
-        let create_request = MeasureCreate{
+        let create_request = MeasureCreate {
             name: "cheeseburger".to_string(),
             name_plural: "cheeseburgers".to_string(),
             grams: 500.0,
@@ -34,7 +34,8 @@ async fn can_create() {
         let measures = request
             .post("/api/measures")
             .add_header(auth_key, auth_value)
-            .json(&create_request).await;
+            .json(&create_request)
+            .await;
 
         with_settings!({
             filters => {
@@ -60,7 +61,7 @@ async fn can_convert_lbs() {
         let user = prepare_data::init_user_login(&request, &ctx).await;
         let (auth_key, auth_value) = prepare_data::auth_header(&user.token);
 
-        let create_request = MeasureCreate{
+        let create_request = MeasureCreate {
             name: "gramburger".to_string(),
             name_plural: "gramburgers".to_string(),
             grams: 500.0,
@@ -68,17 +69,21 @@ async fn can_convert_lbs() {
         let measures = request
             .post("/api/measures")
             .add_header(auth_key, auth_value)
-            .json(&create_request).await;
+            .json(&create_request)
+            .await;
         measures.assert_status_ok();
 
         let convert_request = RandomWeightRequest {
             input_amt: 100.0,
             input_type: InputWeightType::Lbs,
         };
-        let random_weight = request.post("/api/measures/convert").json(&convert_request).await;
+        let random_weight = request
+            .post("/api/measures/convert")
+            .json(&convert_request)
+            .await;
         random_weight.assert_status_ok();
 
-        let random_weight:RandomWeightResponse = random_weight.json();
+        let random_weight: RandomWeightResponse = random_weight.json();
         assert_debug_snapshot!(random_weight);
     })
     .await;
@@ -93,7 +98,7 @@ async fn can_convert_kgs() {
         let user = prepare_data::init_user_login(&request, &ctx).await;
         let (auth_key, auth_value) = prepare_data::auth_header(&user.token);
 
-        let create_request = MeasureCreate{
+        let create_request = MeasureCreate {
             name: "gramburger".to_string(),
             name_plural: "gramburgers".to_string(),
             grams: 1.0,
@@ -101,7 +106,8 @@ async fn can_convert_kgs() {
         let measures = request
             .post("/api/measures")
             .add_header(auth_key.clone(), auth_value.clone())
-            .json(&create_request).await;
+            .json(&create_request)
+            .await;
         measures.assert_status_ok();
 
         let convert_request = RandomWeightRequest {
@@ -111,13 +117,12 @@ async fn can_convert_kgs() {
         let random_weight = request
             .post("/api/measures/convert")
             .add_header(auth_key, auth_value)
-            .json(&convert_request).await;
+            .json(&convert_request)
+            .await;
         random_weight.assert_status_ok();
 
-        let random_weight:RandomWeightResponse = random_weight.json();
+        let random_weight: RandomWeightResponse = random_weight.json();
         assert_debug_snapshot!(random_weight);
     })
-        .await;
+    .await;
 }
-
-
