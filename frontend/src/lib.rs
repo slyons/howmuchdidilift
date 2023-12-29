@@ -24,12 +24,9 @@ pub fn App() -> impl IntoView {
     provide_context(authorized_api);
 
     // -- actions -- //
-    /*let fetch_user_info = create_resource(|| authorized_api.get(), |api| {
-
-    });*/
 
     let fetch_user_info = create_action(move |_| async move {
-        /*match authorized_api.get() {
+        match authorized_api.get_untracked() {
             Some(api) => match api.current_user().await {
                 Ok(info) => user_info.update(|i| *i = Some(info)),
                 Err(err) => {
@@ -39,7 +36,7 @@ pub fn App() -> impl IntoView {
             None => {
                 log::error!("Unable to fetch user info: not logged in")
             }
-        }*/
+        }
     });
 
     let logout = create_action(move |_| async move {
@@ -56,7 +53,7 @@ pub fn App() -> impl IntoView {
 
     // -- callbacks -- //
     let on_logout = move |_| {
-        //logout.dispatch(());
+        logout.dispatch(());
     };
 
     let unauthorized_api = api::UnauthorizedApi::new(DEFAULT_API_URL);
@@ -83,7 +80,7 @@ pub fn App() -> impl IntoView {
         }
     });
     let on_success = move |api| {
-        //log::info!("Successfully logged in");
+        log::info!("Successfully logged in");
         authorized_api.update(|v| *v = Some(api));
         let navigate = use_navigate();
         navigate(Page::MeasureList.path(), Default::default());

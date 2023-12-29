@@ -10,7 +10,7 @@ async fn register(
     Json(mut params): Json<RegisterParams>,
 ) -> Result<Json<()>> {
     if params.password != params.password_confirm {
-        return format::json(eyre!("Password and Password confirmation do not match").into())
+        return Err(eyre!("Password and Password confirmation do not match").into())
     }
     params.email = params.email.to_lowercase();
     let res = users::Model::create_with_password(&ctx.db, &mut params).await;

@@ -8,10 +8,10 @@ use crate::Page;
 
 #[component]
 pub fn MeasureForm(
+    api: Signal<Option<AuthorizedApi>>,
     existing: Signal<Option<Measure>>,
     #[prop(into)] on_save: Callback<()>
 ) -> impl IntoView {
-    let api = expect_context::<Signal<Option<AuthorizedApi>>>();
     let name = create_rw_signal(existing.get().as_ref().map(|e| e.name.to_string()).unwrap_or_default());
     let name_plural = create_rw_signal(existing.get().as_ref().map(|e| e.name_plural.to_string()).unwrap_or_default());
     let grams = create_rw_signal(existing.get().as_ref().map(|e| e.grams.to_string()).unwrap_or_default());
@@ -30,7 +30,6 @@ pub fn MeasureForm(
         waiting.get() || name.get().is_empty() || name_plural.get().is_empty() || !grams_valid.get()
     });
     let submit_action = create_action(move |_| {
-        let api = expect_context::<Signal<Option<AuthorizedApi>>>();
         async move {
             log::debug!("Submitting measurement");
             if let Some(ex) = existing.get() {
@@ -43,7 +42,7 @@ pub fn MeasureForm(
                 waiting.set(true);
                 let result =
                     //api.with(|a| async { a.unwrap().update_one(measure).await; }).await;
-                    api.get().as_ref().unwrap().update_one(measure).await;
+                    api.get_untracked().as_ref().unwrap().update_one(measure).await;
                 waiting.set(false);
                 log::debug!("Measure is {:?}", result);
                 match result {
@@ -66,7 +65,7 @@ pub fn MeasureForm(
                 };
                 waiting.set(true);
                 let result =
-                    api.get().as_ref().unwrap().add(measure_create).await;
+                    api.get_untracked().as_ref().unwrap().add(measure_create).await;
                 //api.get().unwrap().add(measure_create).await;
                 waiting.set(false);
                 match result {
@@ -140,7 +139,6 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
 
     let fetch_error = create_rw_signal(None::<String>);
     let measures = create_resource(|| (), move |_|  {
-        let api = expect_context::<Signal<Option<AuthorizedApi>>>();
         async move {
             match api.get().as_ref().unwrap().list().await {
                 Ok(m) => m,
@@ -160,7 +158,6 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
     let delete_action = create_action(move |id:&i32| {
         let id = *id;
         async move {
-            let api = expect_context::<Signal<Option<AuthorizedApi>>>();
             //api.with(|a| async { a.and_then()a.as_ref().unwrap().delete_one(*id).await; }).await;
             api.get().as_ref().unwrap().delete_one(id).await
         }
@@ -169,9 +166,11 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
     view! {
         <div>
             <MeasureForm
+                api=api
                 existing=edit_measure.into()
                 on_save=move |_m| {
                     measures.refetch();
+                    edit_measure.set(None);
                 }
             />
         </div>
@@ -192,7 +191,7 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
                     </thead>
                     <tbody>
                         <For
-                            each=ms
+                            each=move || {ms.get()}
                             key=move |state| state.id
                             let:child
                             children=move |m| {
@@ -208,6 +207,10 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
                                                 edit_measure.set(Some(m2.clone()))
                                             }>
                                                 "Edit"
+                                            </button>
+                                            <button on:click=move |_| {
+                                                delete_action.dispatch(m.id)
+                                            }>"X"
                                             </button>
                                         </td>
                                     </tr>
