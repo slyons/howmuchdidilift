@@ -5,6 +5,8 @@
       <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/frontend/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/interface/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lift-frontend/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lift_frontend/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/migration/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />

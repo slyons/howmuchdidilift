@@ -1,7 +1,8 @@
 use axum::http::{HeaderName, HeaderValue};
-use interface::LoginResponse;
+use interface::{LoginResponse, MeasureCreate};
 use liftcalc::models::users;
 use loco_rs::{app::AppContext, TestServer};
+use crate::requests::prepare_data;
 
 const USER_EMAIL: &str = "test@loco.com";
 const USER_PASSWORD: &str = "1234";
@@ -15,7 +16,8 @@ pub async fn init_user_login(request: &TestServer, ctx: &AppContext) -> LoggedIn
     let register_payload = serde_json::json!({
         "name": "loco",
         "email": USER_EMAIL,
-        "password": USER_PASSWORD
+        "password": USER_PASSWORD,
+        "password_confirm": USER_PASSWORD,
     });
 
     //Creating a new user
@@ -49,6 +51,25 @@ pub async fn init_user_login(request: &TestServer, ctx: &AppContext) -> LoggedIn
             .unwrap(),
         token: login_response.token,
     }
+}
+
+pub async fn create_measure(request: &TestServer, ctx: &AppContext) -> interface::Measure {
+    let user = init_user_login(&request, &ctx).await;
+    let (auth_key, auth_value) = auth_header(&user.token);
+
+    let create_request = interface::MeasureCreate {
+        name: "gram".to_string(),
+        name_plural: "grams".to_string(),
+        grams: 1.0,
+    };
+
+    let measures = request
+        .post("/api/measures")
+        .add_header(auth_key, auth_value)
+        .json(&create_request)
+        .await;
+    measures.assert_status_ok();
+    measures.json()
 }
 
 pub fn auth_header(token: &str) -> (HeaderName, HeaderValue) {

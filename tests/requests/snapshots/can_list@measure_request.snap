@@ -1,0 +1,15 @@
+---
+source: tests/requests/measure.rs
+expression: "(empty_measures, measures)"
+---
+(
+    [],
+    [
+        Measure {
+            id: 1,
+            name: "gram",
+            name_plural: "grams",
+            grams: 1.0,
+        },
+    ],
+)

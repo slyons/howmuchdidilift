@@ -1,15 +1,19 @@
 use interface::{ LoginParams, LoginResponse, RegisterParams};
 use loco_rs::prelude::*;
-
+use eyre::eyre;
 use crate::models::_entities::users;
 
 /// Register function creates a new user with the given parameters and sends a
 /// welcome email to the user
 async fn register(
     State(ctx): State<AppContext>,
-    Json(params): Json<RegisterParams>,
+    Json(mut params): Json<RegisterParams>,
 ) -> Result<Json<()>> {
-    let res = users::Model::create_with_password(&ctx.db, &params).await;
+    if params.password != params.password_confirm {
+        return format::json(eyre!("Password and Password confirmation do not match").into())
+    }
+    params.email = params.email.to_lowercase();
+    let res = users::Model::create_with_password(&ctx.db, &mut params).await;
 
     let user = match res {
         Ok(user) => user,

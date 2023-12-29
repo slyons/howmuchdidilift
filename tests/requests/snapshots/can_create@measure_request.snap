@@ -1,8 +1,10 @@
 ---
 source: tests/requests/measure.rs
-expression: "(measures.status_code(), measures.text())"
+expression: measure
 ---
-(
-    200,
-    "{\"created_at\":\"DATE\",\"updated_at\":\"DATE\",\"id\":ID,\"name\":\"cheeseburger\",\"name_plural\":\"cheeseburgers\",\"grams\":500.0}",
-)
+Measure {
+    id: 1,
+    name: "gram",
+    name_plural: "grams",
+    grams: 1.0,
+}

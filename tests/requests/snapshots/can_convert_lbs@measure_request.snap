@@ -5,5 +5,5 @@ expression: random_weight
 RandomWeightResponse {
     input_amt: 100.0,
     input_type: Lbs,
-    output_weight: "90.72 gramburgers",
+    output_weight: "45359.2 grams",
 }

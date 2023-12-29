@@ -1,0 +1,18 @@
+---
+source: tests/requests/measure.rs
+expression: "(measure, updated_measure)"
+---
+(
+    Measure {
+        id: 1,
+        name: "gram",
+        name_plural: "grams",
+        grams: 3.0,
+    },
+    Measure {
+        id: 1,
+        name: "gram",
+        name_plural: "grams",
+        grams: 3.0,
+    },
+)
