@@ -24,9 +24,9 @@ pub fn App() -> impl IntoView {
     provide_context(authorized_api);
 
     // -- actions -- //
-    let fetch_user_info = create_resource(|| authorized_api.get(), |api| {
+    /*let fetch_user_info = create_resource(|| authorized_api.get(), |api| {
 
-    });
+    });*/
 
     let fetch_user_info = create_action(move |_| async move {
         /*match authorized_api.get() {
