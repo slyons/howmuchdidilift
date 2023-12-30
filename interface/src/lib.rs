@@ -81,6 +81,7 @@ pub struct RandomWeightResponse {
     pub input_amt: f64,
     pub input_type: InputWeightType,
     pub output_weight: String,
+    pub units: String
 }
 
 

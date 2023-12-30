@@ -37,6 +37,7 @@ rand = "0.8.5"
 fraction = "0.14.0"
 axum-macros = "0.4.0"
 fuzzy_fraction = "0.1.2"
+numfmt = "1.1.1"
 
 [[bin]]
 name = "liftcalc-cli"

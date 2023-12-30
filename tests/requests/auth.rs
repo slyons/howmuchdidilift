@@ -3,7 +3,7 @@ use liftcalc::{app::App, models::users};
 use loco_rs::testing;
 use rstest::rstest;
 use serial_test::serial;
-
+use interface::{RegisterParams, LoginParams, LoginResponse};
 use super::prepare_data;
 
 // TODO: see how to dedup / extract this to app-local test utils
@@ -24,11 +24,12 @@ async fn can_register() {
 
     testing::request::<App, _, _>(|request, ctx| async move {
         let email = "test@loco.com";
-        let payload = serde_json::json!({
-            "name": "loco",
-            "email": email,
-            "password": "12341234"
-        });
+        let payload = RegisterParams {
+            email: email.to_string(),
+            password: "12341234".to_string(),
+            password_confirm: "12341234".to_string(),
+            name: "loco".to_string(),
+        };
 
         let _response = request.post("/api/auth/register").json(&payload).await;
         let saved_user = users::Model::find_by_email(&ctx.db, email).await;
@@ -58,16 +59,17 @@ async fn can_login_with_verify(#[case] test_name: &str, #[case] password: &str) 
 
     testing::request::<App, _, _>(|request, ctx| async move {
         let email = "test@loco.com";
-        let register_payload = serde_json::json!({
-            "name": "loco",
-            "email": email,
-            "password": "12341234"
-        });
+        let payload = RegisterParams {
+            email: email.to_string(),
+            password: "12341234".to_string(),
+            password_confirm: "12341234".to_string(),
+            name: "loco".to_string(),
+        };
 
         //Creating a new user
         _ = request
             .post("/api/auth/register")
-            .json(&register_payload)
+            .json(&payload)
             .await;
 
         let user = users::Model::find_by_email(&ctx.db, email).await.unwrap();
@@ -76,13 +78,14 @@ async fn can_login_with_verify(#[case] test_name: &str, #[case] password: &str) 
         });
         request.post("/api/auth/verify").json(&verify_payload).await;
 
+        let login_payload = LoginParams {
+            email: email.to_string(),
+            password: password.to_string()
+        };
         //verify user request
         let response = request
             .post("/api/auth/login")
-            .json(&serde_json::json!({
-                "email": email,
-                "password": password
-            }))
+            .json(&login_payload)
             .await;
 
         // Make sure email_verified_at is set
@@ -109,25 +112,28 @@ async fn can_login_without_verify() {
     testing::request::<App, _, _>(|request, _ctx| async move {
         let email = "test@loco.com";
         let password = "12341234";
-        let register_payload = serde_json::json!({
-            "name": "loco",
-            "email": email,
-            "password": password
-        });
+        let payload = RegisterParams {
+            email: email.to_string(),
+            password: password.to_string(),
+            password_confirm: password.to_string(),
+            name: "loco".to_string(),
+        };
 
         //Creating a new user
         _ = request
             .post("/api/auth/register")
-            .json(&register_payload)
+            .json(&payload)
             .await;
+
+        let login_payload = LoginParams {
+            email: email.to_string(),
+            password: password.to_string()
+        };
 
         //verify user request
         let response = request
             .post("/api/auth/login")
-            .json(&serde_json::json!({
-                "email": email,
-                "password": password
-            }))
+            .json(&login_payload)
             .await;
 
         with_settings!({

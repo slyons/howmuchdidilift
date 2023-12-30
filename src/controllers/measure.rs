@@ -13,6 +13,7 @@ use crate::models::{
     _entities::measures::{ActiveModel, Entity, Model},
     users,
 };
+use numfmt::{Formatter, Precision};
 
 impl Into<Measure> for Model {
     fn into(self) -> Measure {
@@ -101,19 +102,21 @@ pub async fn convert(
 
     let rnd_measure = Model::find_random(&ctx.db).await?;
     let div = source_grams / rnd_measure.grams;
-    let count_str = if div > 1.0 {
+    let count_str = if div != 1.0 {
         rnd_measure.name_plural
     } else {
         rnd_measure.name
     };
     let div = (div * 100.0).round() / 100.0;
     //let frac = FuzzyFraction::from_ints(source_grams, rnd_measure.grams);
+    let mut f = Formatter::new().precision(Precision::Significance(9));
 
     Ok(Json(RandomWeightResponse {
         when: Utc::now(),
         input_amt: params.input_amt,
         input_type: params.input_type,
-        output_weight: format!("{} {}", div, count_str),
+        output_weight: f.fmt2(div).to_string(),
+        units: count_str,
     }))
 }
 

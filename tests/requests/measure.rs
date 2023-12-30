@@ -146,7 +146,17 @@ async fn can_convert_lbs() {
         random_weight.assert_status_ok();
 
         let random_weight: RandomWeightResponse = random_weight.json();
-        assert_debug_snapshot!(random_weight);
+        //assert_debug_snapshot!(random_weight);
+
+        with_settings!({
+            filters => {
+                 testing::CLEANUP_DATE.to_vec()
+            }
+        }, {
+            assert_debug_snapshot!(
+                random_weight
+            );
+        });
     })
     .await;
 }
@@ -174,7 +184,15 @@ async fn can_convert_kgs() {
         random_weight.assert_status_ok();
 
         let random_weight: RandomWeightResponse = random_weight.json();
-        assert_debug_snapshot!(random_weight);
+        with_settings!({
+            filters => {
+                 testing::CLEANUP_DATE.to_vec()
+            }
+        }, {
+            assert_debug_snapshot!(
+                random_weight
+            );
+        });
     })
     .await;
 }
