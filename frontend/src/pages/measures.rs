@@ -12,9 +12,10 @@ pub fn MeasureForm(
     existing: Signal<Option<Measure>>,
     #[prop(into)] on_save: Callback<()>
 ) -> impl IntoView {
-    let name = create_rw_signal(existing.get().as_ref().map(|e| e.name.to_string()).unwrap_or_default());
-    let name_plural = create_rw_signal(existing.get().as_ref().map(|e| e.name_plural.to_string()).unwrap_or_default());
-    let grams = create_rw_signal(existing.get().as_ref().map(|e| e.grams.to_string()).unwrap_or_default());
+    //let name = create_slice(existing, |existing| existing.)
+    let name = create_rw_signal(String::new());
+    let name_plural = create_rw_signal(String::new());
+    let grams = create_rw_signal(String::new());
     let submit_error = create_rw_signal(None::<String>);
     let waiting = create_rw_signal(false);
 
@@ -26,13 +27,29 @@ pub fn MeasureForm(
         }
     });
 
+    create_effect(move |_| {
+        log::debug!("Existing is {:?}", existing.get());
+        match existing.get() {
+            None => {
+                name.set(String::new());
+                name_plural.set(String::new());
+                grams.set(String::new());
+            }
+            Some(e) => {
+                name.set(e.name);
+                name_plural.set(e.name_plural);
+                grams.set(e.grams.to_string());
+            }
+        }
+    });
+
     let disabled = Signal::derive(move || {
         waiting.get() || name.get().is_empty() || name_plural.get().is_empty() || !grams_valid.get()
     });
     let submit_action = create_action(move |_| {
         async move {
             log::debug!("Submitting measurement");
-            if let Some(ex) = existing.get() {
+            if let Some(ex) = existing.get_untracked() {
                 let measure = Measure {
                     id: ex.id,
                     name: name.get(),
@@ -90,6 +107,7 @@ pub fn MeasureForm(
             <input
                 type="text"
                 placeholder="Name"
+                prop:value=name
                 on:keyup=move |ev: ev::KeyboardEvent| {
                     let val = event_target_value(&ev);
                     name.set(val);
@@ -102,6 +120,7 @@ pub fn MeasureForm(
             <input
                 type="text"
                 placeholder="Plural name"
+                prop:value=name_plural
                 on:keyup=move |ev: ev::KeyboardEvent| {
                     let val = event_target_value(&ev);
                     name_plural.set(val);
@@ -114,6 +133,7 @@ pub fn MeasureForm(
             <input
                 type="number"
                 placeholder="Grams"
+                prop:value=grams
                 on:keyup=move |ev: ev::KeyboardEvent| {
                     let val = event_target_value(&ev);
                     grams.set(val);
@@ -140,7 +160,7 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
     let fetch_error = create_rw_signal(None::<String>);
     let measures = create_resource(|| (), move |_|  {
         async move {
-            match api.get().as_ref().unwrap().list().await {
+            match api.get_untracked().as_ref().unwrap().list().await {
                 Ok(m) => m,
                 Err(err) => {
                     fetch_error.set(Some(err.to_string()));
@@ -181,7 +201,7 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
                 <p>{fetch_error}</p>
             </div>
             <div>
-                <table>
+                <table class="table">
                     <thead>
                         <th>ID</th>
                         <th>Name</th>
@@ -204,6 +224,7 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
                                         <td>{m.grams}</td>
                                         <td>
                                             <button on:click=move |_| {
+                                                log::debug!("Setting Edit measure to {:?}", m2.clone());
                                                 edit_measure.set(Some(m2.clone()))
                                             }>
                                                 "Edit"

@@ -62,7 +62,7 @@ pub struct Measure {
     pub grams: f64,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, EnumIter, EnumString)]
+#[derive(Debug, Clone, Deserialize, Serialize, EnumIter, EnumString, strum::Display)]
 #[serde(rename_all = "lowercase")]
 pub enum InputWeightType {
     Lbs,

@@ -9,6 +9,7 @@ mod components;
 mod pages;
 
 use self::{components::*, pages::*};
+use thaw::*;
 
 const DEFAULT_API_URL: &str = "/api";
 const API_TOKEN_STORAGE_KEY: &str = "api-token";
@@ -90,45 +91,46 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
+        <div data-theme="dracula">
 
-        <Router>
-            <NavBar logged_in on_logout />
-            <main>
-                <Routes>
-                    <Route
-                        path=Page::Convert.path()
-                        view=move || {
-                            view! { <Convert api=unauthorized_api />}
-                        }
-                    />
-                    <Route
-                        path=Page::Login.path()
-                        view=move|| {
-                            view! {
-                                <Login
-                                    api=unauthorized_api
-                                    on_success=on_success
+                <Router>
+                    <NavBar logged_in on_logout />
+                        <main>
+                            <Routes>
+                                <Route
+                                    path=Page::Convert.path()
+                                    view=move || {
+                                        view! { <Convert api=unauthorized_api />}
+                                    }
                                 />
-                            }
-                        }
-                    />
-                    <Route
-                        path=Page::Register.path()
-                        view=move || {
-                            view! { <Register api=unauthorized_api/> }
-                        }
-                    />
-                    <ProtectedRoute
-                        path=Page::MeasureList.path()
-                        condition=move || authorized_api.get().is_some()
-                        redirect_path=Page::Login.path()
-                        view=move || {
-                            view! { <MeasureList api=authorized_api/> }
-                        }
-                    />
-                </Routes>
-            </main>
-
-        </Router>
+                                <Route
+                                    path=Page::Login.path()
+                                    view=move|| {
+                                        view! {
+                                            <Login
+                                                api=unauthorized_api
+                                                on_success=on_success
+                                            />
+                                        }
+                                    }
+                                />
+                                <Route
+                                    path=Page::Register.path()
+                                    view=move || {
+                                        view! { <Register api=unauthorized_api/> }
+                                    }
+                                />
+                                <ProtectedRoute
+                                    path=Page::MeasureList.path()
+                                    condition=move || authorized_api.get().is_some()
+                                    redirect_path=Page::Login.path()
+                                    view=move || {
+                                        view! { <MeasureList api=authorized_api/> }
+                                    }
+                                />
+                            </Routes>
+                        </main>
+                </Router>
+        </div>
     }
 }

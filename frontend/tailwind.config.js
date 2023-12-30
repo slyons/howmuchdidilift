@@ -11,6 +11,9 @@ module.exports = {
       }
     },
   },
-  plugins: [],
+  daisyui: {
+    themes: ["light", "dark", "dracula"],
+  },
+  plugins: [require("daisyui")],
 }
 
