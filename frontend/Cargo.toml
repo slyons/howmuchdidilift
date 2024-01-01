@@ -26,5 +26,6 @@ anyhow = "1.0.76"
 serde = { version = "1.0.193", features = ["derive"] }
 gloo-storage = "0.3.0"
 eyre = "0.6.11"
-thaw = { version = "0.1.5", features = ["leptos_meta"] }
+#thaw = { version = "0.1.5", features = ["leptos_meta"] }
+leptos_animated_for = "0.1.0"
 

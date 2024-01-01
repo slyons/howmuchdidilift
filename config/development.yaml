@@ -29,6 +29,13 @@ server:
       # the limit size. can be b,kb,kib,mb,mib,gb,gib
       body_limit: 5mb
     # Generating a unique request ID and enhancing logging with additional information such as the start and completion of request processing, latency, status code, and other request details.
+    static:
+      enable: true
+      must_exist: true
+      folder:
+        uri: "/"
+        path: "frontend/dist"
+      fallback: "frontend/dist/index.html"
     logger:
       # Enable/Disable the middleware.
       enable: true

@@ -1,0 +1,69 @@
+logger:
+  enable: true
+  pretty_backtrace: {{ get_env(name="PRETTY_BACKTRACE", default="false") }}
+  level: {{ get_env(name="LOG_LEVEL", default="info") }}
+  format: {{ get_env(name="LOG_FORMAT", default="compact") }}
+
+server:
+  port: 3000
+  host: 0.0.0.0
+  middlewares:
+    limit_payload:
+      enable: true
+      body_limit: 5mb
+    static:
+      enable: true
+      must_exist: true
+      folder:
+        uri: "/"
+        path: "frontend/dist"
+      fallback: "frontend/dist/index.html"
+    logger:
+      enable: true
+    catch_panic:
+      enable: true
+    timeout_request:
+      enable: true
+      timeout: 5000
+    cors:
+      enable: true
+
+workers:
+  mode: BackgroundQueue
+
+mailer:
+  # SMTP mailer configuration.
+  smtp:
+    # Enable/Disable smtp mailer.
+    enable: false
+    # SMTP server host. e.x localhost, smtp.gmail.com
+    host: {{ get_env(name="MAILER_HOST", default="localhost") }}
+    # SMTP server port
+    port: 1025
+    # Use secure connection (SSL/TLS).
+    secure: false
+
+database:
+  uri: {{ get_env(name="DATABASE_URL") }}
+  enable_logging: {{ get_env(name="DB_LOGGING", default="false") }}
+  connect_timeout: 500
+  idle_timeout: 500
+  min_connections: 1
+  max_connections: 1
+  auto_migrate: true
+  dangerously_truncate: false
+  dangerously_recreate: false
+
+redis:
+  # Redis connection URI
+  uri: {{ get_env(name="REDIS_URL", default="redis://127.0.0.1") }}
+  # Dangerously flush all data in Redis on startup. dangerous operation, make sure that you using this flag only on dev environments or test mode
+  dangerously_flush: false
+
+auth:
+  # JWT authentication
+  jwt:
+    # Secret key for token generation and verification
+    secret: {{ get_env(name="JWT_SECRET") }}
+    # Token expiration time in seconds
+    expiration: 604800 # 7 days

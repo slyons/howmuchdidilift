@@ -5,18 +5,12 @@ use leptos_router::*;
 #[component]
 pub fn NavBar(
     logged_in: Signal<bool>,
+    show_links: Signal<bool>,
     #[prop(into)] on_logout: Callback<()>,
 ) -> impl IntoView {
-    let click_count = create_rw_signal(0);
-    let show_links = Signal::derive(move || {
-        click_count.get() >= 6
-    });
     view! {
         <div class="navbar bg-base-100">
             <div class="flex-1">
-                <a class="btn btn-ghost text-xl no-animation"
-                    on:click=move |_| {click_count.update(|c| *c += 1);}
-                >"How much did I lift?"</a>
             </div>
             <div class="flex-none">
                 <Show when=move || show_links.get()>

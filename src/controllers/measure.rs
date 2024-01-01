@@ -108,12 +108,11 @@ pub async fn convert(
         rnd_measure.name
     };
     let div = (div * 100.0).round() / 100.0;
-    //let frac = FuzzyFraction::from_ints(source_grams, rnd_measure.grams);
-    let mut f = Formatter::new().precision(Precision::Significance(9));
+    let mut f = Formatter::new().precision(Precision::Significance(9)).separator(',').unwrap();
 
     Ok(Json(RandomWeightResponse {
         when: Utc::now(),
-        input_amt: params.input_amt,
+        input_amt: f.fmt2(params.input_amt).to_string(),
         input_type: params.input_type,
         output_weight: f.fmt2(div).to_string(),
         units: count_str,

@@ -9,7 +9,6 @@ mod components;
 mod pages;
 
 use self::{components::*, pages::*};
-use thaw::*;
 
 const DEFAULT_API_URL: &str = "/api";
 const API_TOKEN_STORAGE_KEY: &str = "api-token";
@@ -21,6 +20,7 @@ pub fn App() -> impl IntoView {
     let authorized_api = create_rw_signal(None::<api::AuthorizedApi>);
     let user_info = create_rw_signal(None::<CurrentResponse>);
     let logged_in = Signal::derive(move || authorized_api.get().is_some());
+    let show_links = create_rw_signal(false);
 
     provide_context(authorized_api);
 
@@ -94,13 +94,13 @@ pub fn App() -> impl IntoView {
         <div data-theme="dracula">
 
                 <Router>
-                    <NavBar logged_in on_logout />
+                    <NavBar logged_in on_logout show_links=show_links.into() />
                         <main>
                             <Routes>
                                 <Route
                                     path=Page::Convert.path()
                                     view=move || {
-                                        view! { <Convert api=unauthorized_api />}
+                                        view! { <Convert api=unauthorized_api show_links=show_links/>}
                                     }
                                 />
                                 <Route

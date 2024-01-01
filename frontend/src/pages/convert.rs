@@ -4,15 +4,29 @@ use crate::{
 use interface::*;
 use leptos::*;
 use std::str::FromStr;
-use thaw::{Button, ButtonVariant};
+use leptos_animated_for::AnimatedFor;
 
 #[component]
-pub fn Convert(api: UnauthorizedApi) -> impl IntoView {
+pub fn Convert(api: UnauthorizedApi, show_links: RwSignal<bool>) -> impl IntoView {
     let (error, set_error) = create_signal(None::<String>);
     let (amt, set_amt) = create_signal(String::new());
     let (input_type, set_input_type) = create_signal("Lbs".to_string());
     let (wait_for_response, set_wait_for_response) = create_signal(false);
-    let (responses, set_responses) = create_signal(vec![]);
+    let responses = create_rw_signal(vec![]);
+
+    let responses_idx = Signal::derive(move || {
+        responses.get().into_iter().enumerate()//.collect::<Vec<(usize, RandomWeightResponse)>>()
+    });
+
+    //let previous_responses = create_slice(responses, )
+
+    let click_count = create_rw_signal(0);
+    create_effect(move |_| {
+        if click_count.get() >= 6 {
+            show_links.update(|s| *s = !(*s));
+            click_count.set(0);
+        }
+    });
 
     let convert_action = create_action(move |(weight, unit): &(String, String)| {
         log::debug!("Requesting weight conversion of {}{}", weight, unit);
@@ -29,7 +43,15 @@ pub fn Convert(api: UnauthorizedApi) -> impl IntoView {
             set_wait_for_response.update(|w| *w = false);
             match result {
                 Ok(res) => {
-                    set_responses.update(|resps| resps.insert(0, res));
+                    responses.update(|resps| {
+                        resps.insert(0, (6 as usize, res));
+                        while resps.len() > 5 {
+                            resps.pop();
+                        }
+                        resps.iter_mut().for_each(|entry| {
+                            entry.0 -= 1;
+                        });
+                    });
                 }
                 Err(e) => {
                     set_error.update(|err| *err = Some(e.to_string()))
@@ -61,17 +83,19 @@ pub fn Convert(api: UnauthorizedApi) -> impl IntoView {
     });
 
     view! {
-        <section class="items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8 hero min-h-screen flex">
-            <div class="items-center flex flex-col w-1/3">
-                <p class="text-center text-5xl leading-9 font-extrabold text-gray-900">How much did I lift?</p>
-                <form on:submit=|ev| ev.prevent_default() class="mt-8 w-full max-w-md space-y-6">
+        <section class="items-center justify-center py-12 px-4 sm:px-6 lg:px-8 hero min-h-screen flex">
+            <div class="items-center flex flex-col w-full">
+                <button class="btn no-animation text-center text-4xl lg:text-5xl leading-9 font-extrabold bg-base-100 hover:bg-base-100 outline-none" on:click=move |_| {
+                    click_count.set(click_count.get() + 1);
+                }>How much did I lift?</button>
+                <form on:submit=|ev| ev.prevent_default() class="mt-8 w-full space-y-6">
                     <div>
-                        <div class="items-center flex">
+                        <div class="items-center flex w-full md:w-2/3 mx-auto flex-col md:flex-row">
                             <input
                                 type="number"
                                 class="focus:border-indigo-700 focus:outline-none
                                     focus:shadow-outline flex-grow transition duration-200 appearance-none p-2 border-2 border-gray-300
-                                    text-black bg-gray-100 font-normal w-full h-12 text-xl rounded-md shadow-sm"
+                                    text-black bg-gray-100 font-normal w-full h-14 text-xl rounded-md shadow-sm"
                                 placeholder="Amount lifted"
                                 prop:disabled=move|| disabled.get()
                                 on:keyup=move |ev: ev::KeyboardEvent| {
@@ -92,8 +116,8 @@ pub fn Convert(api: UnauthorizedApi) -> impl IntoView {
                             />
                             <select
                                 class="focus:border-indigo-700 focus:outline-none
-                                    focus:shadow-outline flex-grow transition duration-200 appearance-none p-2 border-2 border-gray-300
-                                    text-black bg-gray-100 font-normal w-1/6 h-12 text-xl rounded-md shadow-sm"
+                                    focus:shadow-outline flex-grow transition duration-200 appearance-none p-2 m-2 h-14 border-2
+                                    font-normal w-1/6 min-w-14 max-w-14 h-12 text-xl rounded-md shadow-sm"
                                 prop:disabled=move|| disabled.get() on:change= move|ev| {
                                     log::debug!("Changing! {:?}", event_target_value(&ev));
                                     set_input_type.update(|v| *v = event_target_value(&ev))
@@ -102,27 +126,34 @@ pub fn Convert(api: UnauthorizedApi) -> impl IntoView {
                                 <option value="Kgs">"kgs"</option>
                             </select>
                             <button
-                                class="btn btn-primary btn-lg flex p-2 hover:text-blue-400 bg-white w-auto justify-end
-                                    items-center text-blue-500"
+                                class="btn btn-primary btn-lg flex p-2 h-14 w-auto justify-end
+                                    items-center "
                                 prop:disabled=submit_disabled
                                 on:click=move|_| dispatch_action()
                             >"Convert"</button>
                         </div>
-                        <div class="overflow-y-auto h-48">
-                            <div class="overflow-auto">
-                                <ul class="mt-2 w-full bg-white text-black rounded-md shadow-lg z-10">
+                            <div class="overflow-y-hidden h-full prose lg:prose-xl">
+                                <ul class="mt-2 w-full text-center rounded-md  z-10 ">
                                     <Transition fallback=move|| view!{}>
-                                        <For
+                                        <AnimatedFor
                                             each=move|| responses.get()
-                                            key= |state| state.when.clone()
-                                            let:child
-                                        >
-                                            <li class="px-3 py-1 border-gray-200 hover:bg-indigo-500 hover:text-white tx-lg">{child.input_amt.to_string()} " " {child.input_type.to_string().to_lowercase()} " is " {child.output_weight}</li>
-                                        </For>
+                                            key= |state| (state.0, state.1.when)
+                                            children=move |(idx, child)| {
+                                                log::debug!("Idx for {:?} is {}", child, idx);
+                                                let li_class=format!("p-3 border-gray-200 hover:text-white text-{}xl shadow shadow-slate-600", idx);
+                                                view! {
+                                                    <li class=li_class><code class="bg-primary">{child.input_amt.to_string()} {child.input_type.to_string().to_lowercase()}</code> " is " <code class="bg-primary">{child.output_weight.clone()}</code> " " {child.units.clone()}</li>
+                                                }
+                                            }
+                                            enter_from_class="opacity-0"
+                                            enter_class="duration-800"
+                                            move_class="duration-1200"
+                                            leave_class="opacity-0 duration-500"
+                                            appear=true
+                                        />
                                     </Transition>
                                 </ul>
                             </div>
-                        </div>
                     </div>
                 </form>
             </div>

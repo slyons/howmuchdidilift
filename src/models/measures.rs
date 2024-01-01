@@ -11,6 +11,7 @@ use sea_orm::{
     ActiveValue, DatabaseConnection, DbErr, QuerySelect, TransactionTrait,
 };
 use serde::Deserialize;
+use rust_decimal::prelude::*;
 
 pub use super::_entities::measures::{self, ActiveModel, Entity, Model};
 

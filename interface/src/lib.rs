@@ -78,7 +78,7 @@ pub struct RandomWeightRequest {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RandomWeightResponse {
     pub when: DateTime<Utc>,
-    pub input_amt: f64,
+    pub input_amt: String,
     pub input_type: InputWeightType,
     pub output_weight: String,
     pub units: String
