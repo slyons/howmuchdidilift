@@ -50,7 +50,6 @@ pub struct ResetParams {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MeasureCreate {
     pub name: String,
-    pub name_plural: String,
     pub grams: f64,
 }
 
@@ -58,7 +57,6 @@ pub struct MeasureCreate {
 pub struct Measure {
     pub id: i32,
     pub name: String,
-    pub name_plural: String,
     pub grams: f64,
 }
 

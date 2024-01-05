@@ -12,8 +12,6 @@ pub struct Model {
     pub id: i32,
     #[sea_orm(unique)]
     pub name: String,
-    #[sea_orm(unique)]
-    pub name_plural: String,
     #[sea_orm(column_type = "Double")]
     pub grams: f64,
 }

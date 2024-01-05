@@ -20,7 +20,6 @@ impl Into<Measure> for Model {
         Measure {
             id: self.id,
             name: self.name,
-            name_plural: self.name_plural,
             grams: self.grams
         }
     }
@@ -102,11 +101,6 @@ pub async fn convert(
 
     let rnd_measure = Model::find_random(&ctx.db).await?;
     let div = source_grams / rnd_measure.grams;
-    let count_str = if div != 1.0 {
-        rnd_measure.name_plural
-    } else {
-        rnd_measure.name
-    };
     let div = (div * 100.0).round() / 100.0;
     let mut f = Formatter::new().precision(Precision::Significance(9)).separator(',').unwrap();
 
@@ -115,7 +109,7 @@ pub async fn convert(
         input_amt: f.fmt2(params.input_amt).to_string(),
         input_type: params.input_type,
         output_weight: f.fmt2(div).to_string(),
-        units: count_str,
+        units: rnd_measure.name,
     }))
 }
 

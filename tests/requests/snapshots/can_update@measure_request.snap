@@ -5,14 +5,12 @@ expression: "(measure, updated_measure)"
 (
     Measure {
         id: 1,
-        name: "gram",
-        name_plural: "grams",
+        name: "grams",
         grams: 3.0,
     },
     Measure {
         id: 1,
-        name: "gram",
-        name_plural: "grams",
+        name: "grams",
         grams: 3.0,
     },
 )

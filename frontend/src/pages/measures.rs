@@ -14,7 +14,6 @@ pub fn MeasureForm(
 ) -> impl IntoView {
     //let name = create_slice(existing, |existing| existing.)
     let name = create_rw_signal(String::new());
-    let name_plural = create_rw_signal(String::new());
     let grams = create_rw_signal(String::new());
     let submit_error = create_rw_signal(None::<String>);
     let waiting = create_rw_signal(false);
@@ -28,23 +27,20 @@ pub fn MeasureForm(
     });
 
     create_effect(move |_| {
-        log::debug!("Existing is {:?}", existing.get());
         match existing.get() {
             None => {
                 name.set(String::new());
-                name_plural.set(String::new());
-                grams.set(String::new());
+                grams.set("0.0".to_string());
             }
             Some(e) => {
                 name.set(e.name);
-                name_plural.set(e.name_plural);
                 grams.set(e.grams.to_string());
             }
         }
     });
 
     let disabled = Signal::derive(move || {
-        waiting.get() || name.get().is_empty() || name_plural.get().is_empty() || !grams_valid.get()
+        waiting.get() || name.get().is_empty() || !grams_valid.get()
     });
     let submit_action = create_action(move |_| {
         async move {
@@ -53,7 +49,6 @@ pub fn MeasureForm(
                 let measure = Measure {
                     id: ex.id,
                     name: name.get(),
-                    name_plural: name_plural.get(),
                     grams: grams.get().parse::<f64>().unwrap()
                 };
                 waiting.set(true);
@@ -65,7 +60,6 @@ pub fn MeasureForm(
                 match result {
                     Ok(m) => {
                         name.set(String::new());
-                        name_plural.set(String::new());
                         grams.set(String::new());
                         submit_error.set(None);
                         on_save.call(())
@@ -77,7 +71,6 @@ pub fn MeasureForm(
             } else {
                 let measure_create = MeasureCreate {
                     name: name.get(),
-                    name_plural: name_plural.get(),
                     grams: grams.get().parse::<f64>().unwrap()
                 };
                 waiting.set(true);
@@ -88,7 +81,6 @@ pub fn MeasureForm(
                 match result {
                     Ok(m) => {
                         name.set(String::new());
-                        name_plural.set(String::new());
                         grams.set(String::new());
                         submit_error.set(None);
                         on_save.call(())
@@ -118,26 +110,15 @@ pub fn MeasureForm(
                 }
             />
             <input
-                type="text"
-                placeholder="Plural name"
-                prop:value=name_plural
-                on:keyup=move |ev: ev::KeyboardEvent| {
-                    let val = event_target_value(&ev);
-                    name_plural.set(val);
-                }
-                on:change=move |ev| {
-                    let val = event_target_value(&ev);
-                    name_plural.set(val);
-                }
-            />
-            <input
                 type="number"
                 placeholder="Grams"
                 prop:value=grams
-                on:keyup=move |ev: ev::KeyboardEvent| {
+                attr:step="0.0001"
+                attr:min="0"
+                /*on:keyup=move |ev: ev::KeyboardEvent| {
                     let val = event_target_value(&ev);
                     grams.set(val);
-                }
+                }*/
                 on:change=move |ev| {
                     let val = event_target_value(&ev);
                     grams.set(val);
@@ -170,16 +151,18 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
         }
     });
 
-    let ms = Signal::derive(move || {
-        measures.get().unwrap_or_default()
-    });
 
     let edit_measure = create_rw_signal(None::<Measure>);
     let delete_action = create_action(move |id:&i32| {
         let id = *id;
         async move {
-            //api.with(|a| async { a.and_then()a.as_ref().unwrap().delete_one(*id).await; }).await;
-            api.get().as_ref().unwrap().delete_one(id).await
+            let delete_result = api.get().as_ref().unwrap().delete_one(id).await;
+            match delete_result {
+                Ok(_) => { measures.refetch() },
+                Err(err) => {
+                    fetch_error.set(Some(err.to_string()));
+                }
+            }
         }
     });
 
@@ -211,7 +194,7 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
                     </thead>
                     <tbody>
                         <For
-                            each=move || {ms.get()}
+                            each=move || {measures.get().unwrap_or_default()}
                             key=move |state| state.id
                             let:child
                             children=move |m| {
@@ -220,7 +203,6 @@ pub fn MeasureList(#[prop(into)] api: Signal<Option<AuthorizedApi>>) -> impl Int
                                     <tr>
                                         <td>{m.id}</td>
                                         <td>{m.name}</td>
-                                        <td>{m.name_plural}</td>
                                         <td>{m.grams}</td>
                                         <td>
                                             <button on:click=move |_| {

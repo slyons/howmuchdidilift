@@ -21,8 +21,7 @@ async fn test_model() {
     let boot = testing::boot_test::<App>().await.unwrap();
     //testing::seed::<App>(&boot.app_context.db).await.unwrap();
     let create_params = MeasureCreate {
-        name: "burger".to_string(),
-        name_plural: "burgers".to_string(),
+        name: "burgers".to_string(),
         grams: 500.0,
     };
     let create_req = measures::ActiveModel::create(&boot.app_context.db, create_params).await;
@@ -30,7 +29,7 @@ async fn test_model() {
     assert!(create_req.is_ok());
     let create_req = create_req.unwrap();
 
-    let item = measures::Model::find_by_name(&boot.app_context.db, "Burger").await;
+    let item = measures::Model::find_by_name(&boot.app_context.db, "Burgers").await;
     assert!(item.is_ok());
     let item = item.unwrap();
     assert_eq!(create_req.id.unwrap(), item.id);

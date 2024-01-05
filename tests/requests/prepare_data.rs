@@ -58,8 +58,7 @@ pub async fn create_measure(request: &TestServer, ctx: &AppContext) -> interface
     let (auth_key, auth_value) = auth_header(&user.token);
 
     let create_request = interface::MeasureCreate {
-        name: "gram".to_string(),
-        name_plural: "grams".to_string(),
+        name: "grams".to_string(),
         grams: 1.0,
     };
 

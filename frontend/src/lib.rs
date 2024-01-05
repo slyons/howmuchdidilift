@@ -20,7 +20,11 @@ pub fn App() -> impl IntoView {
     let authorized_api = create_rw_signal(None::<api::AuthorizedApi>);
     let user_info = create_rw_signal(None::<CurrentResponse>);
     let logged_in = Signal::derive(move || authorized_api.get().is_some());
-    let show_links = create_rw_signal(false);
+    let title_clicked = create_rw_signal(false);
+
+    let show_links = Signal::derive(move || {
+        title_clicked.get() || authorized_api.get().is_some()
+    });
 
     provide_context(authorized_api);
 
@@ -100,7 +104,7 @@ pub fn App() -> impl IntoView {
                                 <Route
                                     path=Page::Convert.path()
                                     view=move || {
-                                        view! { <Convert api=unauthorized_api show_links=show_links/>}
+                                        view! { <Convert api=unauthorized_api show_links=title_clicked/>}
                                     }
                                 />
                                 <Route

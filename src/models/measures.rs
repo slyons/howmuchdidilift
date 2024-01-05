@@ -11,7 +11,6 @@ use sea_orm::{
     ActiveValue, DatabaseConnection, DbErr, QuerySelect, TransactionTrait,
 };
 use serde::Deserialize;
-use rust_decimal::prelude::*;
 
 pub use super::_entities::measures::{self, ActiveModel, Entity, Model};
 
@@ -19,8 +18,6 @@ pub use super::_entities::measures::{self, ActiveModel, Entity, Model};
 pub struct ModelValidator {
     #[validate(length(min = 2, message = "Name must be at least 2 characters long."))]
     pub name: String,
-    #[validate(length(min = 2, message = "Plural Name must be at least 2 characters long."))]
-    pub name_plural: String,
     #[validate(range(min = 0))]
     pub grams: f64,
 }
@@ -29,7 +26,6 @@ impl From<&ActiveModel> for ModelValidator {
     fn from(value: &ActiveModel) -> Self {
         Self {
             name: value.name.as_ref().to_string(),
-            name_plural: value.name_plural.as_ref().to_string(),
             grams: *value.grams.as_ref(),
         }
     }
@@ -85,7 +81,6 @@ impl super::_entities::measures::ActiveModel {
 
         let measure = measures::ActiveModel {
             name: ActiveValue::Set(params.name),
-            name_plural: ActiveValue::Set(params.name_plural),
             grams: ActiveValue::Set(params.grams),
             ..Default::default()
         }

@@ -4,7 +4,6 @@ expression: measure
 ---
 Measure {
     id: 1,
-    name: "gram",
-    name_plural: "grams",
+    name: "grams",
     grams: 1.0,
 }
